@@ -1,0 +1,69 @@
+---
+title: "Notes & planning"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+We can use this document to take notes & plan.
+
+
+
+
+2/1/2021
+
+
+Phenology timeseries modeling ideas
+* First goal: identify a couple important variables and implement a simple model
+
+
+Variables
+* What are we getting with the incoming data?
+* How do we want to represent time/seasonality?
+  * Parameterize it in terms of change (i.e. delta-gcc)?
+  * Smooth function (e.g. spline / GAM)?
+  * Additive effect of mean of historical data for that date?
+*
+
+
+
+
+
+One idea: additive components. From Hyndman and Athanasopoulos book:
+$$y_t = \mathcal{N} (S_t + T_t + R_t, \sigma_y)$$
+$$R_t = x_t^T\beta$$
+
+where S_t is the seasonal component, T_t is the trend component, and R_t is the
+"remainder," or what I'd call the anomaly.
+
+We might say that T_t is 0 when we've already accounted for the seasonal and temporal trend (maybe, maybe not).
+
+Maybe S_t is driven by some values we're interested in (e.g. Julian date) but we
+could also say that $S_t = S_{jd}$ in every year.
+
+
+```{r}
+nimbleCode({
+  
+  for (t in 1:ntime) {
+    for (site in 1:nsite) {
+      
+      y[site, t] ~ dnorm(
+        mean = St[site, date_of_year[t]],
+        sd = sd_y
+      )
+      
+    }
+  }
+})
+```
+
+
+# Data
+NEON meteorological station and NOAA’s Global Ensemble Forecast System (GEFS) will be provided. NOAA Global Ensemble Forecasting System 35-day weather forecasts for each NEON site: 3-6 hourly (https://data.ecoforecast.org/minio/drivers/noaa/NOAAGEFS_6hr/) and hourly (https://data.ecoforecast.org/minio/drivers/noaa/NOAAGEFS_1hr/) 
+
+
+

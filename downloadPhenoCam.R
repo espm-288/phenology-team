@@ -18,3 +18,7 @@ download.phenocam <- function(URL,skipNum=22) {
     print(paste("download.phenocam: Input URL not provided correctly",URL))
   }
 }
+
+
+
+

@@ -23,6 +23,7 @@ for(i in 1:length(siteIDs)){
   message(siteName)
   if(siteName != "NEON.D11.CLBJ.DP1.00033"){
     URL_gcc90 <- paste('https://phenocam.sr.unh.edu/data/archive/',siteName,"/ROI/",siteName,"_DB_1000_1day.csv",sep="") ##URL for daily summary statistics
+    URL_temp <- paste('https://phenocam.sr.unh.edu/data/archive/',siteName,"/ROI/",siteName,"DP4.00001.001.csv",sep="") ##URL for daily summary statistics
     URL_individual <- paste('https://phenocam.sr.unh.edu/data/archive/',siteName,"/ROI/",siteName,"_DB_1000_roistats.csv",sep="") ##URL for individual image metrics
   }else{
     URL_gcc90 <- paste('https://phenocam.sr.unh.edu/data/archive/',siteName,"/ROI/",siteName,"_DB_2000_1day.csv",sep="") ##URL for daily summary statistics
@@ -42,8 +43,25 @@ for(i in 1:length(siteIDs)){
   allData <- rbind(allData,subPhenoData)
   
 }
-
 readr::write_csv(allData, "phenology-targets.csv.gz")
+  
+
+# Download "Summary weather statistics" 
+# This will get us the following for every day at our target sites:
+# Windspeed - wss_daily_wind-basic
+# Barometric pressure - wss_daily_pres-basic
+# Relative humidity - wss_daily_humid-basic
+# Short-wave radiation - wss_daily_shortRad-basic
+# Temperature - wss_daily_temp-basic
+# Precipitation - wss_daily_precip-basic
+neonstore::neon_download("DP4.00001.001", site = site_names)
+neonstore::neon_store(product = "DP4.00001.001")
+temptbl <- neonstore::neon_table("wss_daily_temp-basic")
+humidtbl <- neonstore::neon_table("wss_daily_humid-basic")
+radtbl <- neonstore::neon_table("wss_daily_shortRad-basic")
+
+
+
 
 ## Publish the targets to EFI.  Assumes aws.s3 env vars are configured.
 source("../neon4cast-shared-utilities/publish.R")
