@@ -1,10 +1,17 @@
 library(tidyverse)
 library(fpp3)
 
-
+# Load data
 phenoDat <- read_csv("phenology-targets.csv.gz") %>% 
   filter(siteID == "CLBJ") %>% 
   as_tsibble(index = time, key = siteID)
+
+
+# Linear interpolation code
+min_time <- min(phenoDat$time[!is.na(phenoDat$gcc_90)])
+max_time <- max(phenoDat$time[!is.na(phenoDat$gcc_90)])
+phenoDat <- phenoDat %>% filter(time >= min_time,
+                                time <= max_time)
 
 all_dates <- seq(min(phenoDat$time), max(phenoDat$time), by = 1)
 na_inds <- which(is.na(phenoDat$gcc_90))
@@ -29,12 +36,13 @@ while (i < nrow(phenoDat)) {
 }
 
 
+# Play with timeseries tools
 autoplot(phenoDat, gcc_90)
 
 
 # Default STL
 dcmp <- phenoDat %>%
-  model(STL(gcc_90 ~ season("year")))
+  model(STL(gcc_90))
 
 
 autoplot(components(dcmp))
@@ -43,7 +51,6 @@ autoplot(components(dcmp))
 # Only year trend
 dcmp <- phenoDat %>%
   model(STL(gcc_90 ~ season("year")))
-
 
 autoplot(components(dcmp))
 
