@@ -1,5 +1,6 @@
 library(tidyverse)
 library(fpp3)
+library(forecast)
 
 # Load data
 phenoDat <- read_csv("phenology-targets.csv.gz") %>% 
@@ -53,4 +54,37 @@ dcmp <- phenoDat %>%
   model(STL(gcc_90 ~ season("year")))
 
 autoplot(components(dcmp))
+
+library(lubridate)
+# Lowercase version
+
+phenoDat_filtered <- phenoDat %>% 
+  filter(!(month(time) == 2 & mday(time) == 29))
+  
+
+pheno_ts <- ts(data = phenoDat_filtered$gcc_90, 
+     start = c(year(phenoDat$time[1]), yday(phenoDat$time[1])),
+     end = c(year(phenoDat$time[nrow(phenoDat)]), yday(phenoDat$time[nrow(phenoDat)])), 
+     frequency = 365)
+
+fit <- mstl(pheno_ts, s.window = "periodic")
+summary(fit)
+autoplot(fit)
+
+
+nday <- 366
+fc <- stlf(pheno_ts, h = nday) %>% 
+  summary(print = F) %>% 
+  rename(gcc_90 = `Point Forecast`, lower = `Lo 95`, upper = `Hi 95`)
+fc$time <- phenoDat$time[nrow(phenoDat)] + 1:nday
+fc$type <- "Forecast"
+
+phenoDat$type <- "Historic"
+phenoDat$lower <- NA
+phenoDat$upper <- NA
+
+ggplot(mapping = aes(time, gcc_90, col = type)) +
+  geom_line(data = phenoDat) +
+  geom_line(data = fc) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), data = fc)
 
