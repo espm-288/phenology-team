@@ -67,13 +67,13 @@ pheno_ts <- ts(data = phenoDat_filtered$gcc_90,
      end = c(year(phenoDat$time[nrow(phenoDat)]), yday(phenoDat$time[nrow(phenoDat)])), 
      frequency = 365)
 
-fit <- mstl(pheno_ts, s.window = "periodic")
+fit <- mstl(pheno_ts, s.window = 365, t.window = 365)
 summary(fit)
 autoplot(fit)
 
 
 nday <- 366
-fc <- stlf(pheno_ts, h = nday) %>% 
+fc <- stlf(pheno_ts, h = nday, s.window = 2) %>% 
   summary(print = F) %>% 
   rename(gcc_90 = `Point Forecast`, lower = `Lo 95`, upper = `Hi 95`)
 fc$time <- phenoDat$time[nrow(phenoDat)] + 1:nday
@@ -86,5 +86,11 @@ phenoDat$upper <- NA
 ggplot(mapping = aes(time, gcc_90, col = type)) +
   geom_line(data = phenoDat) +
   geom_line(data = fc) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), data = fc)
+  geom_errorbar(aes(ymin = lower, ymax = upper), data = fc, alpha = 0.1)
+
+
+plot(fc$time, fc$upper - fc$lower)
+
+
+
 
