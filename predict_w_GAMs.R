@@ -116,7 +116,7 @@ predict_df %>%
   pivot_longer(cols = c("mean", "sd"), 
                names_to = "statistic",
                values_to = "gcc_90") %>% 
-  write_csv("prediction-2021-02-22-greenbears.csv")
+  write_csv(paste0("prediction-", stop("Put today's date here: YYYY-MM-DD"), "-greenbears.csv"))
   
   
 
