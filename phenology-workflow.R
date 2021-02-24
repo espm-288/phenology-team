@@ -54,7 +54,7 @@ readr::write_csv(allData, "phenology-targets.csv.gz")
 # Short-wave radiation - wss_daily_shortRad-basic
 # Temperature - wss_daily_temp-basic
 # Precipitation - wss_daily_precip-basic
-neonstore::neon_download("DP4.00001.001", site = site_names)
+neonstore::neon_download("DP1.00005.001", site = site_names)
 neonstore::neon_store(product = "DP4.00001.001")
 temptbl <- neonstore::neon_table("wss_daily_temp-basic")
 humidtbl <- neonstore::neon_table("wss_daily_humid-basic")
