@@ -4,7 +4,7 @@ library(forecast)
 
 # Load data
 phenoDat <- read_csv("phenology-targets.csv.gz") %>% 
-  filter(siteID == "CLBJ") %>% 
+  filter(siteID %in% c("CLBJ", "HARV")) %>% 
   as_tsibble(index = time, key = siteID)
 
 
@@ -65,9 +65,10 @@ phenoDat_filtered <- phenoDat %>%
 pheno_ts <- ts(data = phenoDat_filtered$gcc_90, 
      start = c(year(phenoDat$time[1]), yday(phenoDat$time[1])),
      end = c(year(phenoDat$time[nrow(phenoDat)]), yday(phenoDat$time[nrow(phenoDat)])), 
-     frequency = 365)
+     frequency = 365, 
+     names = phenoDat_filtered$siteID)
 
-fit <- mstl(pheno_ts, s.window = 365, t.window = 365)
+fit <- mstl(pheno_ts, s.window = 365, t.window = 13)
 summary(fit)
 autoplot(fit)
 
@@ -89,7 +90,7 @@ ggplot(mapping = aes(time, gcc_90, col = type)) +
   geom_errorbar(aes(ymin = lower, ymax = upper), data = fc, alpha = 0.1)
 
 
-plot(fc$time, fc$upper - fc$lower)
+# plot(fc$time, fc$upper - fc$lower)
 
 
 
