@@ -84,3 +84,28 @@ score_it(targets_file = "phenology-targets.csv.gz",
          target_variables = "gcc_90")
 
 score <- read_csv("scores/scores-phenology-2021-2-22-greenbearsPRACTICE.csv.gz")
+
+uncertainty_df <- predict_df %>% 
+  filter(statistic == "sd") %>% 
+  select(-statistic) %>% 
+  rename(predict_sd = gcc_90)
+
+comparison_df <- predict_df %>% 
+  filter(statistic == "mean") %>% 
+  rename(prediction = gcc_90) %>% 
+  left_join(phenoDat_future, by = c("siteID", "time")) %>% 
+  left_join(uncertainty_df, by = c("siteID", "time"))
+
+comparison_df %>% 
+  ggplot() +
+  geom_ribbon(mapping = aes(time, ymin = prediction - 1.96*predict_sd, 
+                            ymax = prediction + 1.96*predict_sd),
+              alpha = 0.2) +
+  geom_line(mapping = aes(time, prediction)) +
+  geom_point(mapping = aes(time, gcc_90)) +
+  facet_wrap(~siteID)
+
+site_scores <- score %>% 
+  group_by(siteID) %>% 
+  summarize(score = mean(score, na.rm = T))
+
