@@ -9,7 +9,7 @@ library(lubridate)
 phenoDat <- read_csv("phenology-targets.csv.gz")
 sites <- unique(phenoDat$siteID)
 plots <- list()
-
+resultlist <- list()
 
 # For-loop to forecast by siteID
 for(i in 1:length(sites)){
@@ -50,9 +50,12 @@ for(i in 1:length(sites)){
   result <- capture.output(fc <- stlf(pheno_ts, h = nday, s.window = 2) %>% 
     summary(print = FALSE) %>% 
     rename(gcc_90 = `Point Forecast`, lower = `Lo 95`, upper = `Hi 95`))
+  
     
   fc$time <- thatDat$time[nrow(thatDat)] + 1:nday
   fc$type <- "Forecast"
+  fc$siteID <- sites[i]
+  resultlist[[i]] <- fc
   
   thatDat$type <- "Historic"
   thatDat$lower <- NA
@@ -69,6 +72,14 @@ for(i in 1:length(sites)){
 }
 
 plots
-  
-# calculate sd for forecast
-# make csv for submission
+
+forcastdata <- do.call(rbind, resultlist) %>% 
+  mutate(sd = (gcc_90 - lower)/1.96)
+
+forcastdata %>% 
+  select(time, siteID, gcc_90, sd) %>% 
+  rename(mean = gcc_90) %>% 
+  pivot_longer(cols = c("mean", "sd"), 
+               names_to = "statistic",
+               values_to = "gcc_90") %>% 
+  write_csv(paste0("prediction-", ("2021-03-08"), "-greenbears.csv"))
