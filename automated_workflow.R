@@ -94,22 +94,12 @@ for (i in 1:length(sites)) {
               data = thisDat, method = "REML",
               correlation = corAR1(form = ~ 1 | year))
   
-  mod_wpar <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10) + par,
-                   data = thisDat, method = "REML",
-                   correlation = corAR1(form = ~ 1 | year))
-  
   predicted <- predict.gam(mod$gam, newdat,
                            se.fit = T, type = "iterms", terms = "s(yday)")
-  predicted_wpar <- 
-    predict.gam(mod_wpar$gam, newdat,
-                se.fit = T, type = "iterms", terms = c("s(yday)", "par"))
-  
+
   predict_list[[i]] <- data.frame(
     gcc_90 = unlist(predicted$fit + attr(predicted, "constant")),
     gcc_90_SE = predicted$se.fit,
-    gcc_90_wpar = predicted_wpar$fit[,1] + predicted_wpar$fit[,2] + 
-      attr(predicted_wpar, "constant"),
-    gcc_90_SE_wpar = sqrt(predicted_wpar$se.fit[,1]^2 + predicted_wpar$se.fit[,2]^2),
     time = newdat$date,
     siteID = sites[[i]]
   )
