@@ -82,4 +82,4 @@ forcastdata %>%
   pivot_longer(cols = c("mean", "sd"), 
                names_to = "statistic",
                values_to = "gcc_90") %>% 
-  write_csv(paste0("prediction-", ("2021-03-08"), "-greenbears.csv"))
+  write_csv(paste0("phenology-", ("2021-03-08"), "-greenbears_stl.csv"))
