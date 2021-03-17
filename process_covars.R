@@ -1,4 +1,7 @@
 
+
+
+
 rh_table <- neonstore::neon_table("RH_30min-expanded")
 rh_good <- rh_table %>% 
   select(startDateTime, RHMean, tempRHMean, siteID) %>% 
@@ -14,7 +17,7 @@ rh_good %>%
 
 
 
-
+neonstore::neon_download()
 par_table <- neonstore::neon_table("PARPAR_30min-expanded")
 par_good <- par_table %>% 
   select(startDateTime, PARMean, siteID) %>% 

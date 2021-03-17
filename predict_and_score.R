@@ -80,10 +80,10 @@ predict_df %>%
 
 
 score_it(targets_file = "phenology-targets.csv.gz", 
-         forecast_files = "phenology-2021-2-22-greenbearsPRACTICE.csv", 
+         forecast_files = "phenology-2021-03-10-greenbears_gams.csv", 
          target_variables = "gcc_90")
 
-score <- read_csv("scores/scores-phenology-2021-2-22-greenbearsPRACTICE.csv.gz")
+score <- read_csv("scores/scores-phenology-2021-03-10-greenbears_gams.csv.gz")
 
 uncertainty_df <- predict_df %>% 
   filter(statistic == "sd") %>% 
