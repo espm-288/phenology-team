@@ -6,6 +6,8 @@
 library(tidyverse)
 library(mgcv)
 library(neonstore)
+library(dplyr)
+library(aws.s3)
 
 #### Step 1. Get today's data ####
 
@@ -105,12 +107,10 @@ for (i in 1:length(sites)) {
   )
 }
 
-
 #### Step 3. Format output ####
 
 predict_df <- do.call(rbind, predict_list)
 colnames(predict_df) <- c("gcc_90", "gcc_90_SE", "time", "siteID")
-
 
 final_predict_df <- predict_df %>% 
   select(time, siteID, gcc_90, gcc_90_SE) %>% 
@@ -121,4 +121,12 @@ final_predict_df <- predict_df %>%
   mutate(forecast = 1, data_assimilation = 0)
 
 #### Step 4. Publish ####
+name <- paste0("submissions/phenology-", Sys.Date(), "-greenbears_gams.csv")
+
+write_csv(final_predict_df, name)
+
+aws.s3::put_object(file = name, bucket = "submissions", region="data", base_url = "ecoforecast.org")
+
+
+
 
