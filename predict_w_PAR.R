@@ -61,10 +61,6 @@ for (i in 1:length(sites)) {
   this_newdat$par <- attr(predicted_par, "constant") + predicted_par
   
   
-  mod <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10),
-              data = thisDat, method = "REML",
-              correlation = corAR1(form = ~ 1 | year))
-  
   mod_wpar <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10) + par,
               data = thisDat, method = "REML",
               correlation = corAR1(form = ~ 1 | year))
