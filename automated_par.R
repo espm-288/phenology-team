@@ -52,6 +52,17 @@ for(i in 1:length(siteIDs)){
 }
 readr::write_csv(allData, "phenology-targets.csv.gz")
 
+neon_download("DP1.00024.001", site = site_names, file_regex = ".*30min.*\\.csv",
+              start_date = min(allData$time), end_date = max(allData$time),
+              .token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJiZW4uZ29sZHN0ZWluQGJlcmtlbGV5LmVkdSIsInNjb3BlIjoicmF0ZTpwdWJsaWMiLCJpc3MiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnLyIsImV4cCI6MTc0ODkwNDQ2MCwiaWF0IjoxNTkxMjI0NDYwLCJlbWFpbCI6ImJlbi5nb2xkc3RlaW5AYmVya2VsZXkuZWR1In0.dDKtuk-ZZriLnNOkvKXG-IowZii7uhWNRr13xcw5FwXI1k0-4tQSW3oxKjPbfJF6sG9fRokJbJFqhVZRTgj_KA")
+neonstore::neon_store(product = "DP1.00024.001")
+par_table <- neonstore::neon_table("PARPAR_30min-expanded")
+par_good <- par_table %>% 
+  select(startDateTime, PARMean, siteID) %>% 
+  mutate(date = lubridate::date(startDateTime)) %>% 
+  group_by(date, siteID) %>% 
+  summarize(par = mean(PARMean))
+write_csv(par_good, "data/PAR.csv")
 
 
 #### Step 2. Fit a model and predict for all sites ####
@@ -89,19 +100,29 @@ for (i in 1:length(sites)) {
     mutate(yday = lubridate::yday(time), year = lubridate::year(time),
            time = as.numeric(time)) %>% 
     filter(!is.na(gcc_90), !is.na(par))
-  newdat$par <- mean(thisDat$par)
+  
+  this_newdat <- newdat %>% mutate(siteID = sites[[i]])
+  
+  PAR_gam <- gamm(par ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10),
+                  data = thisDat, method = "REML",
+                  correlation = corAR1(form = ~ 1 | year))
+  predicted_par <- predict.gam(PAR_gam$gam, newdata = this_newdat, 
+                               type = "iterms", terms = "s(yday)")
+  this_newdat$par <- as.numeric(attr(predicted_par, "constant") + predicted_par)
   
   
-  mod <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10),
-              data = thisDat, method = "REML",
-              correlation = corAR1(form = ~ 1 | year))
+  mod_wpar <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10) + par,
+                   data = thisDat, method = "REML",
+                   correlation = corAR1(form = ~ 1 | year))
   
-  predicted <- predict.gam(mod$gam, newdat,
-                           se.fit = T, type = "iterms", terms = "s(yday)")
-
+  predicted_wpar <- 
+    predict.gam(mod_wpar$gam, this_newdat,
+                se.fit = T, type = "iterms", terms = c("s(yday)", "par"))
+  
   predict_list[[i]] <- data.frame(
-    gcc_90 = unlist(predicted$fit + attr(predicted, "constant")),
-    gcc_90_SE = predicted$se.fit,
+    gcc_90 = predicted_wpar$fit[,1] + predicted_wpar$fit[,2] + 
+      attr(predicted_wpar, "constant"),
+    gcc_90_SE = sqrt(predicted_wpar$se.fit[,1]^2 + predicted_wpar$se.fit[,2]^2),
     time = newdat$date,
     siteID = sites[[i]]
   )
@@ -121,14 +142,11 @@ final_predict_df <- predict_df %>%
   mutate(forecast = 1, data_assimilation = 0)
 
 #### Step 4. Publish ####
-name <- paste0("submissions/phenology-", Sys.Date(), "-greenbears_gams.csv")
+name <- paste0("submissions/phenology-", Sys.Date(), "-greenbears_par.csv")
 
 write_csv(final_predict_df, name)
 
 if (aws.s3::put_object(file = name, bucket = "submissions", region="data", base_url = "ecoforecast.org")) {
   cat("SUBMITTED!!!!!!!")
 }
-
-
-
 
