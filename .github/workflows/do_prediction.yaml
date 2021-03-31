@@ -1,8 +1,5 @@
-on:
+on: push
 # Change this to chron trigger
-  push: 
-    paths:
-      - '**.Rmd'
 
 jobs:
   build:
