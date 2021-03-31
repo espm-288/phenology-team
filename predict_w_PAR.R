@@ -58,52 +58,34 @@ for (i in 1:length(sites)) {
                   correlation = corAR1(form = ~ 1 | year))
   predicted_par <- predict.gam(PAR_gam$gam, newdata = this_newdat, 
                                  type = "iterms", terms = "s(yday)")
-  this_newdat$par <- attr(predicted_par, "constant") + predicted_par
+  this_newdat$par <- as.numeric(attr(predicted_par, "constant") + predicted_par)
   
   
   mod_wpar <- gamm(gcc_90 ~ s(yday, bs = "cc", k = 150) + s(time, bs = "cr", k = 10) + par,
               data = thisDat, method = "REML",
               correlation = corAR1(form = ~ 1 | year))
   
-  predicted <- predict.gam(mod$gam, newdat,
-                           se.fit = T, type = "iterms", terms = "s(yday)")
   predicted_wpar <- 
-    predict.gam(mod_wpar$gam, newdat,
+    predict.gam(mod_wpar$gam, this_newdat,
                 se.fit = T, type = "iterms", terms = c("s(yday)", "par"))
 
   predict_list[[i]] <- data.frame(
-    gcc_90 = unlist(predicted$fit + attr(predicted, "constant")),
-    gcc_90_SE = predicted$se.fit,
-    gcc_90_wpar = predicted_wpar$fit[,1] + predicted_wpar$fit[,2] + 
+    gcc_90 = predicted_wpar$fit[,1] + predicted_wpar$fit[,2] + 
                   attr(predicted_wpar, "constant"),
-    gcc_90_SE_wpar = sqrt(predicted_wpar$se.fit[,1]^2 + predicted_wpar$se.fit[,2]^2),
+    gcc_90_SE = sqrt(predicted_wpar$se.fit[,1]^2 + predicted_wpar$se.fit[,2]^2),
     time = newdat$date,
     siteID = sites[[i]]
   )
 }
 
 predict_df <- do.call(rbind, predict_list)
-colnames(predict_df) <- c("gcc_90", "gcc_90_SE", 
-                          "gcc_90_wpar", "gcc_90_SE_wpar",
-                          "time", "siteID")
+colnames(predict_df) <- c("gcc_90", "gcc_90_SE", "time", "siteID")
 
 # Visualize predictions
 predict_plots <- list()
-predict_plots_wpar <- list()
 for (i in 1:length(sites)) {
   predict_plots[[i]] <- predict_df %>% 
     mutate(type = "Predict") %>% 
-    bind_rows(phenoDat[, c("gcc_90", "type", "time", "siteID")]) %>% 
-    filter(siteID == sites[i]) %>% 
-    ggplot(aes(time, gcc_90, col = type)) +
-    geom_point() +
-    geom_errorbar(aes(time, ymin = gcc_90 - 1.96*gcc_90_SE, 
-                      ymax = gcc_90 + 1.96*gcc_90_SE, col = type, alpha = 0.1)) +
-    scale_alpha_continuous(guide = FALSE) +
-    ggtitle(sites[[i]])
-  
-  predict_plots_wpar[[i]] <- predict_df %>% 
-    mutate(type = "Predict", gcc_90 = gcc_90_wpar, gcc_90_SE = gcc_90_SE_wpar) %>% 
     bind_rows(phenoDat[, c("gcc_90", "type", "time", "siteID")]) %>% 
     filter(siteID == sites[i]) %>% 
     ggplot(aes(time, gcc_90, col = type)) +
@@ -124,8 +106,7 @@ predict_df %>%
                names_to = "statistic",
                values_to = "gcc_90") %>% 
   mutate(forecast = 1, data_assimilation = 0) %>% 
-  write_csv(paste0("phenology-2021-03-01-greenbears.csv"))
-  write_csv(paste0("phenology-", stop("Put today's date here: YYYY-MM-DD"), "-greenbears.csv"))
-  
+  write_csv(paste0("phenology-2021-03-29-greenbears_PAR.csv"))
+
   
 
