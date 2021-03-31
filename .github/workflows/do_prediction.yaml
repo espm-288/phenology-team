@@ -1,7 +1,6 @@
 on:
   schedule:    
-    - cron: "1 0 * * *"
-# Change this to chron trigger
+  - cron: "1 0 * * *"
 
 jobs:
   build:
