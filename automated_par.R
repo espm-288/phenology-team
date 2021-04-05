@@ -62,7 +62,7 @@ par_good <- par_table %>%
   mutate(date = lubridate::date(startDateTime)) %>% 
   group_by(date, siteID) %>% 
   summarize(par = mean(PARMean))
-write_csv(par_good, "data/PAR.csv")
+write_csv(par_good, "PAR.csv")
 
 
 #### Step 2. Fit a model and predict for all sites ####
@@ -75,7 +75,7 @@ phenoDat <- read_csv("phenology-targets.csv.gz") %>%
 
 # Neon data
 site_names <- c("HARV", "BART", "SCBI", "STEI", "UKFS", "GRSM", "DELA", "CLBJ")
-par_good <- read_csv("data/PAR.csv")
+par_good <- read_csv("PAR.csv")
 
 
 phenoDat <- left_join(phenoDat, par_good, by = c("time" = "date",
