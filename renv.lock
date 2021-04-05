@@ -390,18 +390,6 @@
       "Repository": "CRAN",
       "Hash": "06d7fb918328bbb695240f40ba8aa20b"
     },
-    "ecoforecastR": {
-      "Package": "ecoforecastR",
-      "Version": "0.1.0",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "ecoforecastR",
-      "RemoteUsername": "EcoForecast",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "e31eb4f3395d2f13b5be4741dfd3dd214f43ef04",
-      "Hash": "61c1ee963a8daeae4437aa6660d178ce"
-    },
     "ellipsis": {
       "Package": "ellipsis",
       "Version": "0.3.1",
@@ -1008,13 +996,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b06bfb3504cc8a4579fd5567646f745b"
-    },
-    "rjags": {
-      "Package": "rjags",
-      "Version": "4-10",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e7fc80d447730043303ae76ca5773e3d"
     },
     "rlang": {
       "Package": "rlang",
