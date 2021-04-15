@@ -6,7 +6,7 @@ library(neon4cast)
 library(neonstore)
 
 
-write_meta_template("submissions/phenology-", Sys.Date(), "-greenbears_par.csv")
+create_model_metadata(forecast_file = paste0("phenology-TEMPLATE-greenbears_par.csv"))
 
 generate_metadata(forecast_file, 
                   metadata_yaml, 

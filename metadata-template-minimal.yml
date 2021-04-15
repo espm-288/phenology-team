@@ -1,0 +1,28 @@
+#####
+#See https://shorturl.at/irMQW for a guide to all the options below
+####
+team_name: greenbears_par
+# ids are optional except for the first author, who is also the 'contact'
+team_list:
+  - individualName:
+      givenName: Raphaela
+      surName: Floreani Buzbee 
+      id: refb@berkeley.edu
+  - individualName:
+      givenName: Benjamin R.
+      surName: Goldstein
+      id: ben.goldstein@berkeley.edu #email or orcid id
+  - individualName:
+      givenName: McKalee
+      surName: Steen
+      id: mckalee_steen@berkeley.edu
+metadata:
+  forecast:
+    timestep: 1 day #time step of model
+    forecast_horizon: 35 days #number of time steps in the future
+    model_description:
+      # model identifier:
+      forecast_model_id: "greenbears_par"
+      name: Generalized additive model of gcc_90 with PAR
+      type: empirical #General type of model empirical, machine learning, process
+      repository: https://github.com/espm-288/phenology-team
