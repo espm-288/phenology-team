@@ -20,9 +20,11 @@ metadata:
   forecast:
     timestep: 1 day #time step of model
     forecast_horizon: 35 days #number of time steps in the future
+    metadata_standard_version: idk
     model_description:
       # model identifier:
       forecast_model_id: "greenbears_par"
       name: Generalized additive model of gcc_90 with PAR
       type: empirical #General type of model empirical, machine learning, process
       repository: https://github.com/espm-288/phenology-team
+      

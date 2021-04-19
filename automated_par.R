@@ -9,6 +9,9 @@ library(neonstore)
 library(dplyr)
 library(aws.s3)
 
+install_github("eco4cast/neon4cast")
+library(neon4cast)
+
 #### Step 1. Get today's data ####
 
 source("downloadPhenoCam.R")
@@ -141,12 +144,24 @@ final_predict_df <- predict_df %>%
                values_to = "gcc_90") %>% 
   mutate(forecast = 1, data_assimilation = 0)
 
-#### Step 4. Publish ####
-name <- paste0("submissions/phenology-", Sys.Date(), "-greenbears_par.csv")
+name <- paste0("phenology-", Sys.Date(), "-greenbears_par.csv")
 
 write_csv(final_predict_df, name)
 
-if (aws.s3::put_object(file = name, bucket = "submissions", region="data", base_url = "ecoforecast.org")) {
+#### Step 4. Make metadata ####
+
+num_variables <<- 1
+write_metadata_eml(name, 
+                   metadata_yaml = "phenology-TEMPLATE-greenbears_par.yml", 
+                   forecast_issue_time = Sys.time(), 
+                   forecast_iteration_id = paste0("phenology-", Sys.Date(), "-greenbears_par"))
+
+#### Step 5. Publish ####
+metadata_name <- gsub(".csv", ".xml", name)
+if (aws.s3::put_object(file = name, bucket = "submissions", region="data", 
+                       base_url = "ecoforecast.org") &&
+    aws.s3::put_object(file = metadata_name, bucket = "submissions", region="data", 
+                       base_url = "ecoforecast.org")) {
   cat("SUBMITTED!!!!!!!")
 }
 
