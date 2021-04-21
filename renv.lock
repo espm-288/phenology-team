@@ -348,6 +348,12 @@
       "Repository": "CRAN",
       "Hash": "714005206038b1dda74cb1de85029a20"
     },
+    "devtools": {
+      "Package": "devtools",
+      "Version": "2.3.2",
+      "Source": "Repository",
+      "Repository": "CRAN"
+    },
     "desc": {
       "Package": "desc",
       "Version": "1.2.0",
