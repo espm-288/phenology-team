@@ -9,7 +9,7 @@ library(neonstore)
 library(dplyr)
 library(aws.s3)
 
-install_github("eco4cast/neon4cast")
+devtools::install_github("eco4cast/neon4cast")
 library(neon4cast)
 
 #### Step 1. Get today's data ####
