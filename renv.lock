@@ -781,6 +781,16 @@
       "Repository": "CRAN",
       "Hash": "5c1c0231b12b3d54cf619a3e5e36d229"
     },
+    "neon4cast": {
+      "Package": "neon4cast",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "neon4cast",
+      "RemoteUsername": "eco4cast",
+      "RemoteRef": "HEAD"
+    },
     "neonstore": {
       "Package": "neonstore",
       "Version": "0.3.3",
@@ -788,6 +798,7 @@
       "Repository": "CRAN",
       "Hash": "aa848d5c51385b32b515c8d5c9585d39"
     },
+    
     "nimble": {
       "Package": "nimble",
       "Version": "0.10.1",
